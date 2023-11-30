@@ -19,6 +19,7 @@ function closeModal(popup) { // закрытие ...
 }
 
 function closeModalEvt(evtClose) { // закрытие ...
+  
   if ((evtClose.target.classList.contains('popup__close')) ||        // кликом по крестику
     (evtClose.target.classList.contains('popup_is-opened')) ||       // кликом на оверлей
     (evtClose.key === "Escape") ||                                   // нажатием на Esc
@@ -30,7 +31,7 @@ function closeModalEvt(evtClose) { // закрытие ...
 
 // функция Открытие модального окна с большой картинкой
 
-function openCloseImgPopup(popupSource){
+function openImgPopup(popupSource){
   const evtCard = popupSource.target.closest('.card');
   const evtCardImg = evtCard.querySelector('.card__image');
   const evtCardText = evtCard.querySelector('.card__title');
@@ -43,8 +44,7 @@ function openCloseImgPopup(popupSource){
   bigImgPopupText.textContent = evtCardText.textContent;
 
   openModal(bigImgPopup);
-  bigImgPopup.addEventListener('click', closeModalEvt);
 }
 
-export {openModal, closeModalEvt, openCloseImgPopup};
+export {openModal, closeModalEvt, openImgPopup};
 

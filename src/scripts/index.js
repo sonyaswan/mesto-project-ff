@@ -1,34 +1,26 @@
 import '../pages/index.css'; // добавьте импорт главного файла стилей 
-import {initialCards, createCard, deleteItem, likeItem} from '../components/cards.js';
-import {openModal, closeModalEvt, openCloseImgPopup} from '../components/modal.js';
+import {initialCards} from '../components/cards.js';
+import {createCard, deleteItem, likeItem} from '../components/card.js';
+import {openModal, closeModalEvt, openImgPopup} from '../components/modal.js';
+import {placesList, 
+  profileEditButtonOpen, 
+  profileEditPopup, 
+  newCardButtonOpen,
+  newCardPopup,
+  imgPopup,
+  profileTitle,
+  profileDescription,
+  formEditProfile,
+  nameInput,
+  jobInput,
+  formNewPlace,
+  placeNameInput,
+  placeUrlInput} from '../components/dom.js'; 
 
-
-// @todo: DOM узлы
-
-const placesList = document.querySelector('.places__list');
-
-const profileEditButtonOpen = document.querySelector('.profile__edit-button');
-const profileEditPopup = document.querySelector('.popup_type_edit');
-
-const newCardButtonOpen = document.querySelector('.profile__add-button');
-const newCardPopup = document.querySelector('.popup_type_new-card');
-
-const profileTitle = document.querySelector('.profile__title');
-const profileDescription = document.querySelector('.profile__description');
-
-// Находим форму редактирования профиля в DOM и ее поля
-const formElement = document.querySelector('div.popup_type_edit .popup__form'); // Воспользуйтесь методом querySelector()
-const nameInput = formElement.querySelector('.popup__input_type_name'); // Воспользуйтесь инструментом .querySelector()
-const jobInput = formElement.querySelector('.popup__input_type_description');// Воспользуйтесь инструментом .querySelector()
-
-// Находим форму добавления карточки в DOM и ее поля
-const formNewPlace = document.forms['new-place']; 
-const placeNameInput = formNewPlace.elements['place-name']; 
-const placeUrlInput = formNewPlace.elements.link;
 
 // функция отображение карточки
 function renderCard (cardContent, prepEnd) {
-  const newCard = createCard(cardContent, deleteItem, openCloseImgPopup, likeItem);
+  const newCard = createCard(cardContent, deleteItem, openImgPopup, likeItem);
   if (prepEnd) {
     placesList.prepend(newCard); 
   } else {
@@ -56,6 +48,8 @@ newCardButtonOpen.addEventListener('click', function (evt) {
 
 newCardPopup.addEventListener('click', closeModalEvt);
 
+imgPopup.addEventListener('click', closeModalEvt);
+
 // Обработчик «отправки» формы
 function handleFormSubmit(evt) {
   evt.preventDefault(); // Эта строчка отменяет стандартную отправку формы.
@@ -76,6 +70,6 @@ function handleFormNewPlace(evt) {
 
 // Прикрепляем обработчик к форме:
 // он будет следить за событием “submit” - «отправка»
-formElement.addEventListener('submit', handleFormSubmit); 
+formEditProfile.addEventListener('submit', handleFormSubmit); 
 formNewPlace.addEventListener('submit', handleFormNewPlace); 
 
