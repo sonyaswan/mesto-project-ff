@@ -1,5 +1,27 @@
-// Открытие модального окна 
+import {cardTemplate, 
+  placesList, 
+  profileEditButtonOpen, 
+  profileEditPopup, 
+  newCardButtonOpen,
+  newCardPopup,
+  imgPopup,
+  deleteCardPopup,
+  deleteCardButton,
+  profileTitle,
+  profileDescription,
+  profileImage,
+  formEditProfile,
+  nameInput,
+  jobInput,
+  formNewPlace,
+  placeNameInput,
+  placeUrlInput} from '../components/dom.js'; 
 
+
+/**
+ * Открытие модального окна 
+ * @param {HTMLElement} popup DOM попапа
+ */
 function openModal(popup) {
   popup.classList.add('popup_is-animated');
   setTimeout(() => {
@@ -8,9 +30,11 @@ function openModal(popup) {
   document.addEventListener('keydown', closeModalEvt);
 }
 
-// закрытие модального окна
-
-function closeModal(popup) { // закрытие ...
+/**
+ * закрытие модального окна
+ * @param {HTMLElement} popup DOM попапа
+ */
+function closeModal(popup) { // закрытие модального окна
   popup.classList.remove('popup_is-opened');
   setTimeout(() => {
     popup.classList.remove('popup_is-animated')
@@ -18,32 +42,44 @@ function closeModal(popup) { // закрытие ...
   document.removeEventListener('keydown', closeModalEvt);
 }
 
-function closeModalEvt(evtClose) { // закрытие ...
+/**
+ * закрытие модального окна по событию
+ * @param {Event} evtClose событие
+ */
+function closeModalEvt(evtClose) { // событие закрытия
   
-  if ((evtClose.target.classList.contains('popup__close')) ||        // кликом по крестику
-    (evtClose.target.classList.contains('popup_is-opened')) ||       // кликом на оверлей
-    (evtClose.key === "Escape") ||                                   // нажатием на Esc
-    (evtClose.target.classList.contains('popup__button')))           // кликом по submit
+  if ((evtClose.type === 'click' &&
+        evtClose.target.classList.contains('popup__close')) ||          // кликом по крестику
+    (evtClose.type === 'mousedown' && 
+        evtClose.target.classList.contains('popup_is-opened')) ||       // ПКМ на оверлей
+    (evtClose.key === "Escape") ||                                      // нажатием на Esc
+    (evtClose.type === 'submit' &&
+        evtClose.target.classList.contains('popup__form')))             // кликом по submit
     {
-      closeModal(document.querySelector('.popup_is-opened'));      
+      closeModal(document.querySelector('.popup_is-opened')); 
   }
 }
 
-// функция Открытие модального окна с большой картинкой
 
-function openImgPopup(popupSource){
-  const evtCard = popupSource.target.closest('.card');
-  const evtCardImg = evtCard.querySelector('.card__image');
-  const evtCardText = evtCard.querySelector('.card__title');
-  const bigImgPopup = document.querySelector('.popup_type_image');
-  const bigImgPopupImg = bigImgPopup.querySelector('.popup__image');
-  const bigImgPopupText = bigImgPopup.querySelector('.popup__caption');
+/**
+ * функция Открытие модального окна с большой картинкой
+ * @param {HTMLElement} popupSource картинка, которая будет открыта в попапе
+ */
+function openImgPopup(popupSource) {
+  if (popupSource.target.classList.contains('card__image')) {
+    const evtCard = popupSource.target.closest('.card');
+    const evtCardImg = popupSource.target;
+    const evtCardText = evtCard.querySelector('.card__title');
+    const bigImgPopup = imgPopup;
+    const bigImgPopupImg = bigImgPopup.querySelector('.popup__image');
+    const bigImgPopupText = bigImgPopup.querySelector('.popup__caption');
 
-  bigImgPopupImg.src = evtCardImg.src;
-  bigImgPopupImg.alt = evtCardImg.alt;
-  bigImgPopupText.textContent = evtCardText.textContent;
+    bigImgPopupImg.src = evtCardImg.src;
+    bigImgPopupImg.alt = evtCardImg.alt;
+    bigImgPopupText.textContent = evtCardText.textContent;
 
-  openModal(bigImgPopup);
+    openModal(bigImgPopup);
+  }
 }
 
 export {openModal, closeModalEvt, openImgPopup};

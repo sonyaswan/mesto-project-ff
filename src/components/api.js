@@ -1,0 +1,77 @@
+const studentConfig = {
+  baseUrl: 'https://nomoreparties.co/v1/wff-cohort-3',
+  headers: {
+    authorization: 'b698a70e-68ca-440a-8289-1336e2ee5149',
+    'Content-Type': 'application/json'
+  }
+}
+
+/**
+ * Базовая реализация GET запроса
+ * @param {object} config объект с кофигурацие подключения
+ * @param {string} config.baseUrl базовый адрес с идентификатором группы
+ * @param {object} config.headers данные подключения
+ * @param {string} config.headers.authorization токен подключения
+ * @param {string} uri частичный путь после базового адреса
+ */
+const get = (config, uri) => {
+  // fetch GET запрос c авторизацией
+  return fetch(config.baseUrl + uri, {
+    headers: {
+      authorization: config.headers.authorization
+    }
+  })
+    .then((res) => res)
+    .then(handleResponse)
+}
+
+/**
+ * Обработчик ошибок запроса
+ * @param {Response} response объект с ответом сервера до загрузки данных
+ * @return {Promise} в then всегда будет результат
+ * @reject {status, error} в catch всегда будет ошибка
+ */
+
+const handleResponse = (response) => {
+  if (response.ok) {
+    return response.json();
+  }
+   // если ошибка, отклоняем промис
+  return Promise.reject(`Ошибка: ${response.status}`);
+};
+
+/**
+ * Функция изменения, добавления, удаления данных
+ * @param {object} config объект с кофигурацие подключения
+ * @param {string} config.baseUrl базовый адрес с идентификатором группы
+ * @param {object} config.headers данные подключения
+ * @param {string} config.headers.authorization токен подключения
+ * @param {string} uri частичный путь после базового адреса
+ * @param {PATCH|POST|DELETE|PUT} method HTTP метод запроса
+ * @param {object} data данные которые нужно передать на сервер (необязательный параметр)
+ */
+
+const request = (config, uri, method, data) => {
+  return fetch(config.baseUrl + uri, {
+    method: method,
+    headers: {
+      authorization: config.headers.authorization,
+      'Content-Type': config.headers['Content-Type']
+    },
+    body: JSON.stringify(data),
+  })
+  .then(handleResponse);
+}
+
+//Загрузка информации о пользователе с сервера
+const userInfo = get(studentConfig, '/users/me');
+
+// Загрузка информации карточек с сервера
+const cardsInfo = get(studentConfig, '/cards');
+
+
+export {get, 
+        request, 
+        studentConfig,
+        userInfo, 
+        cardsInfo};

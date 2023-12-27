@@ -1,7 +1,11 @@
 .card__description {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: auto 22px;
+  grid-template-rows: auto 16px; 
+  grid-template-areas:
+    "title like"
+    "title counter";
   align-items: center;
+  padding: 22px 20px;
   background: #fff;
-  padding: 25px 20px;
 }

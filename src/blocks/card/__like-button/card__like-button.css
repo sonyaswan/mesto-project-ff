@@ -1,18 +1,18 @@
 .card__like-button {
-  width: 21px;
-  height: 18px;
-  background: transparent url('../../../images/like-inactive.svg') no-repeat;
-  
-  background-size: 21px 18px;
-  border: none;
-  cursor: pointer;
-  padding: 0;
+  grid-area: like;
+  width: 22px; /*исправлено по макету с лайками. исходные значения 21px*/
+  height: 19px; /*исправлено по макету с лайками. исходные значения 18px*/
   margin: 0;
+  border: none;
+  padding: 0;
+  background: transparent url('../../../images/like-inactive.svg') no-repeat;
+  background-size: 22px 19px; /*исправлено по макету с лайками. исходные значения 21px 18px*/
   -webkit-transition: 0.3s;
   -moz-transition: 0.3s;
   -ms-transition: 0.3s;
   -o-transition: 0.3s;
   transition: 0.3s;
+  cursor: pointer;
 }
 
 .card__like-button:hover {
