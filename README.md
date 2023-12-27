@@ -6,6 +6,13 @@ https://github.com/sonyaswan/mesto-project-ff.git
 
 ## Stack of Technologies
 1. JavaScript
-2. HTML 
+* Динамическая валидация форм
+* Подключение к API
+2. HTML
+*Семантическая вёрстка
 3. CSS
+* Вёрстка с использоваием Flexbox и Grid Layout
+* Структура файлов в соответствии с принципами Nested БЭМ
 4. Webpack
+
+## Site is live at
