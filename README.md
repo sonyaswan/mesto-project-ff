@@ -9,10 +9,11 @@ https://github.com/sonyaswan/mesto-project-ff.git
 * Динамическая валидация форм
 * Подключение к API
 2. HTML
-*Семантическая вёрстка
+* Семантическая вёрстка
 3. CSS
 * Вёрстка с использоваием Flexbox и Grid Layout
 * Структура файлов в соответствии с принципами Nested БЭМ
 4. Webpack
 
 ## Site is live at
+https://sonyaswan.github.io/mesto-project-ff/
