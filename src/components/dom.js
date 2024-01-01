@@ -20,8 +20,10 @@ const profileEditPopup = document.querySelector('.popup_type_edit');
 const newCardPopup = document.querySelector('.popup_type_new-card');
 //попап просмотра картинки
 const imgPopup = document.querySelector('.popup_type_image');
+const bigImgPopupImg = imgPopup.querySelector('.popup__image'); 
+const bigImgPopupText = imgPopup.querySelector('.popup__caption'); 
 //попап удаления карточки
-const deleteCardPopup = document.querySelector('.popup_type_delete-card');
+const сardDeletePopup = document.querySelector('.popup_type_delete-card');
 //попап с формой изменения аватара профиля
 const avatarEditPopup = document.querySelector('.popup_type_edit-avatar');
 
@@ -44,7 +46,7 @@ const placeUrlInput = formNewPlace.elements.link;
 const formNewPlaceSubmit = formNewPlace.querySelector('.popup__button');
 
 //форма "да" на попапе удаления карточки
-const formDeleteCard = deleteCardPopup.querySelector('.popup__form');
+const formDeleteCard = сardDeletePopup.querySelector('.popup__form');
 const formDeleteCardSubmit = formDeleteCard.querySelector('.popup__button');
 
 // Находим форму добавления карточки в DOM и ее поля
@@ -61,7 +63,9 @@ export {cardTemplate,
         profileEditPopup,
         newCardPopup,
         imgPopup,
-        deleteCardPopup,
+        bigImgPopupImg,
+        bigImgPopupText,
+        сardDeletePopup,
         avatarEditPopup,
         profileTitle,
         profileDescription,

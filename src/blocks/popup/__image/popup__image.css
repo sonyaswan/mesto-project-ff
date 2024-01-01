@@ -1,6 +1,7 @@
 .popup__image {
-  max-height: 100%;
-  max-width: 100%;
-  object-fit: cover;
   display: block;
+  max-width: 100%;
+  height: calc(540 / 720 * 100dvh);
+  object-fit: cover;
+  background-color: #C4C4C4;
 }

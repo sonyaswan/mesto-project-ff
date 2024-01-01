@@ -4,11 +4,13 @@ import '../pages/index.css'; // добавьте импорт главного �
 
 import {createCard, deleteItem, likeItem} from '../components/card.js';
 
-import {openModal, 
-  closeModalEvt, 
-  openImgPopup} from '../components/modal.js';
+import {
+  openModal, 
+  closeModal,
+  openImgPopup
+} from '../components/modal.js';
 
-import {cardTemplate,
+import {
   placesList,
   profileEditButtonOpen,
   newCardButtonOpen,
@@ -16,7 +18,7 @@ import {cardTemplate,
   profileEditPopup,
   newCardPopup,
   imgPopup,
-  deleteCardPopup,
+  сardDeletePopup,
   avatarEditPopup,
   profileTitle,
   profileDescription,
@@ -33,31 +35,31 @@ import {cardTemplate,
   formDeleteCardSubmit,
   formNewAvatar,
   avatarUrlInput,
-  formNewAvatarSubmit} from '../components/dom.js'; 
+  formNewAvatarSubmit
+} from '../components/dom.js'; 
 
 import {validationConfig, enableValidation, clearValidation} from '../components/validation.js';
 
-import {get, 
-  request,
-  studentConfig,
-  userInfo, 
-  cardsInfo} from '../components/api.js';
+import {projectAPI} from '../components/api.js';
 
 //объект для временного хранения информации карточки, которую надо удалить
 const cardIdObj = {
   cardId: '',
-  cardDOM:  ''
+  cardDOM:  '',
 };
+
+//залогиненный пользователь
+let userID;
 
 
 //----------------------------------------------------------------------------
 /**
  * функция отображение карточки
  * @param {object} cardContent данные карточки
- * @param {boolean} prepEnd доавление карточки в начало / конец списка
+ * @param {boolean} prepEnd добавление карточки в начало / конец списка
  */
 function renderCard (cardContent, prepEnd) {
-  const newCard = createCard(cardContent, deleteItem, likeItem, openDeleteCardPopup);
+  const newCard = createCard(cardContent, deleteItem, likeItem, openсardDeletePopup);
   if (prepEnd) {
     placesList.prepend(newCard); 
   } else {
@@ -73,11 +75,11 @@ function renderCard (cardContent, prepEnd) {
  * @param {string} cardID id карточки 
  * @param {string} cardDOM DOM карточки 
  */
-function openDeleteCardPopup (cardID, cardDOM) {
+function openсardDeletePopup (cardID, cardDOM) {
   cardIdObj.cardId = cardID;
   cardIdObj.cardDOM = cardDOM;
   formDeleteCardSubmit.textContent = 'Да';
-  openModal(deleteCardPopup);  
+  openModal(сardDeletePopup);  
 }
 
 /**
@@ -109,7 +111,7 @@ function openAvatarEditPopup (evt) {
  */
 function openNewCardPopup (evt) {
   formNewPlace.reset();
-  formNewPlaceSubmit.textContent = 'Сохранить';
+  formNewPlaceSubmit.textContent = 'Создать';
   clearValidation(formNewPlace, validationConfig);
   openModal(newCardPopup);
 }
@@ -122,17 +124,15 @@ function openNewCardPopup (evt) {
  * @param {Event} evt событие  
  */
 function handleSubmitDelete (evt) {
-  evt.preventDefault(); // Эта строчка отменяет стандартную отправку формы.
+  evt.preventDefault();
 
-  request(studentConfig, `/cards/${cardIdObj.cardId}`, 'DELETE') //удаление карточки с сервера
+  projectAPI.deleteCard(cardIdObj.cardId) //удаление карточки с сервера
   .then((res) => {
     formDeleteCardSubmit.textContent = 'Удаление...';
     deleteItem(cardIdObj.cardDOM); //удаление карточки из разметки
-  })
-  .then((res) => {
     setTimeout(() => {
-      closeModalEvt(evt);
-    }, 300)   
+      closeModal(сardDeletePopup);
+    }, 300);
   })
   .catch((err) => console.log(err));
 }
@@ -142,21 +142,19 @@ function handleSubmitDelete (evt) {
  * @param {Event} evt событие
  */
 function handleFormEditProfile(evt) {
-  evt.preventDefault(); // Эта строчка отменяет стандартную отправку формы.
+  evt.preventDefault();
   const newInf = {
     name: nameInput.value,
     about: jobInput.value
   }
-  request(studentConfig, '/users/me', 'PATCH', newInf) //Редактирование профиля
+  projectAPI.updateProfile(newInf) //Редактирование профиля
     .then((res) => {
       profileTitle.textContent = newInf.name;
       profileDescription.textContent = newInf.about;
       formEditProfileSubmit.textContent = 'Сохранение...';
-    })
-    .then((res) => {
       setTimeout(() => {
-        closeModalEvt(evt);
-      }, 300)   
+        closeModal(profileEditPopup);
+      }, 300);
     })
     .catch((err) => console.log(err));
 }
@@ -166,19 +164,17 @@ function handleFormEditProfile(evt) {
  * @param {Event} evt событие
  */
 function handleFormEditAvatar(evt) {
-  evt.preventDefault(); // Эта строчка отменяет стандартную отправку формы.
+  evt.preventDefault();
   const newInf = {
     avatar: avatarUrlInput.value,
   }
-  request(studentConfig, '/users/me/avatar', 'PATCH', newInf) //Редактирование профиля
+  projectAPI.updateAvatar(newInf) //Редактирование аватара
     .then((res) => {
       profileImage.src = res.avatar;
       formNewAvatarSubmit.textContent =  'Сохранение...';
-    })
-    .then((res) => {
       setTimeout(() => {
-        closeModalEvt(evt);
-      }, 300)   
+        closeModal(avatarEditPopup);
+      }, 300);
     })
     .catch((err) => console.log(err));
 }
@@ -189,21 +185,19 @@ function handleFormEditAvatar(evt) {
  * @param {Event} evt событие
  */
 function handleFormNewPlace(evt) {
-  evt.preventDefault(); // Эта строчка отменяет стандартную отправку формы.
+  evt.preventDefault();
   const newPlace = {
     name: placeNameInput.value,
     link: placeUrlInput.value
   };
 
-  Promise.all([userInfo, request(studentConfig, '/cards', 'POST', newPlace)]) //добавление новой карточки на сервер
-    .then(([USER, card]) => {
-      card.userID = USER['_id'];
+  projectAPI.postCard(newPlace) //добавление новой карточки на сервер
+    .then((card) => {
+      card.userID = userID;
       renderCard(card, true);
       formNewPlaceSubmit.textContent = 'Сохранение...';
-    })
-    .then((res) => {
       setTimeout(() => {
-        closeModalEvt(evt);
+        closeModal(newCardPopup);
       }, 300)   
     })
     .catch((err) => console.log(err));
@@ -212,21 +206,14 @@ function handleFormNewPlace(evt) {
 
 //----------------------------------------------------------------------------
 //рендер страницы с данными из базы
-
-// вывод информации о пользователи из базы
-userInfo
-  .then((USER) => {
+Promise.all([projectAPI.userInfo, projectAPI.cardsInfo])
+ .then(([USER, CARDS]) => {
     profileTitle.textContent = USER.name;
     profileDescription.textContent = USER.about;
     profileImage.src = USER.avatar;
-  })
-  .catch((err) => console.log(err));
-
-// вывод карточек из базы
-Promise.all([userInfo, cardsInfo])
- .then(([USER, CARDS]) => {
+    userID = USER['_id'];
     CARDS.forEach((card) => {
-      card.userID = USER['_id'];
+      card.userID = userID;
       renderCard(card, false);
     });
   })
@@ -244,30 +231,36 @@ newCardButtonOpen.addEventListener('click', openNewCardPopup);//открытие
 
 placesList.addEventListener('click', openImgPopup);//открытие попапа с просмотром картинки по клику на список карточек
 
-//попап редактирования профиля
-profileEditPopup.addEventListener('mousedown', closeModalEvt); //для оверлея 
-profileEditPopup.addEventListener('click', closeModalEvt); //для для всего остального 
+/*слушатели закрытия попапов
+разнесено на два вида слушателей: 
+оверлей выделен отдельно mousedown для более приятного пользовательского опыта. 
+например если закрытие по оверлею будет по click и пользователь будет выделять 
+мышкой текст в каком либо инпуте не очень аккуратно, и при этом движение мышки 
+закончилось где-то не внутри попапа, а на оверлее - то поп ап закроется, это 
+явно не то, что ожидаемо от интерфейса.*/
 
-//попап редактирования аватара профиля
-avatarEditPopup.addEventListener('mousedown', closeModalEvt); //для оверлея 
-avatarEditPopup.addEventListener('click', closeModalEvt); //для для всего остального 
+[profileEditPopup,
+avatarEditPopup,
+newCardPopup,
+imgPopup,
+сardDeletePopup].forEach((popup) => {
 
-//попап новой карточки
-newCardPopup.addEventListener('mousedown', closeModalEvt); //для оверлея 
-newCardPopup.addEventListener('click', closeModalEvt); //для для всего остального 
+  popup.addEventListener('mousedown', (evtClose) => {                  // ПКМ на оверлей
+    if (evtClose.target.classList.contains('popup_is-opened')){
+      closeModal(popup);
+    }
+  })
 
-//попап просмотра картинки
-imgPopup.addEventListener('mousedown', closeModalEvt); //для оверлея 
-imgPopup.addEventListener('click', closeModalEvt); //для для всего остального 
-
-//попап удаления карточки
-deleteCardPopup.addEventListener('mousedown', closeModalEvt); //для оверлея 
-deleteCardPopup.addEventListener('click', closeModalEvt); //для для всего остального 
+  popup.addEventListener('click', (evtClose) => {                      // кликом по крестику
+    if (evtClose.target.classList.contains('popup__close')){
+      closeModal(popup);
+    }
+  })
+})
 
 
 //----------------------------------------------------------------------------
-// Прикрепляем обработчик к форме:
-// он будет следить за событием “submit” - «отправка»
+// Прикрепляем обработчики к формам:
 formEditProfile.addEventListener('submit', handleFormEditProfile); 
 formNewAvatar.addEventListener('submit', handleFormEditAvatar); 
 formNewPlace.addEventListener('submit', handleFormNewPlace); 

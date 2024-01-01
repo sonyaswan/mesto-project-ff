@@ -3,6 +3,12 @@ const studentConfig = {
   headers: {
     authorization: 'b698a70e-68ca-440a-8289-1336e2ee5149',
     'Content-Type': 'application/json'
+  },
+  uri: {
+    profile: '/users/me',
+    avatar: '/users/me/avatar',
+    cards: '/cards',
+    likes: '/cards/likes'
   }
 }
 
@@ -14,14 +20,13 @@ const studentConfig = {
  * @param {string} config.headers.authorization токен подключения
  * @param {string} uri частичный путь после базового адреса
  */
-const get = (config, uri) => {
+const getData = (config, uri) => {
   // fetch GET запрос c авторизацией
   return fetch(config.baseUrl + uri, {
     headers: {
       authorization: config.headers.authorization
     }
   })
-    .then((res) => res)
     .then(handleResponse)
 }
 
@@ -51,7 +56,7 @@ const handleResponse = (response) => {
  * @param {object} data данные которые нужно передать на сервер (необязательный параметр)
  */
 
-const request = (config, uri, method, data) => {
+const requestData = (config, uri, method, data) => {
   return fetch(config.baseUrl + uri, {
     method: method,
     headers: {
@@ -63,15 +68,19 @@ const request = (config, uri, method, data) => {
   .then(handleResponse);
 }
 
-//Загрузка информации о пользователе с сервера
-const userInfo = get(studentConfig, '/users/me');
+const makeAPI = (config) => ({
+  updateProfile: (newInfo) => requestData(config, config.uri.profile, 'PATCH', newInfo),
+  updateAvatar: (newURL) => requestData(config, config.uri.avatar, 'PATCH', newURL),
+  deleteCard: (cardID) => requestData(config, `${config.uri.cards}/${cardID}`, 'DELETE'),
+  postCard: (newPlace) => requestData(config, config.uri.cards, 'POST', newPlace),
+  toggleLike: (cardID, ifLiked) => {
+    const method = ifLiked ? "DELETE" : "PUT";
+    return requestData(config, `${config.uri.likes}/${cardID}`, method)
+  },
+  userInfo: getData(config, config.uri.profile),
+  cardsInfo: getData(config, config.uri.cards)
+});
 
-// Загрузка информации карточек с сервера
-const cardsInfo = get(studentConfig, '/cards');
+const projectAPI = makeAPI(studentConfig);
 
-
-export {get, 
-        request, 
-        studentConfig,
-        userInfo, 
-        cardsInfo};
+export {projectAPI};

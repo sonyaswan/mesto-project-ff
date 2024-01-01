@@ -1,8 +1,7 @@
 import {cardTemplate} from '../components/dom.js'; 
 
 import {
-  request, 
-  studentConfig,
+  projectAPI
   } from '../components/api.js';
 
 // @todo: Функция создания карточки
@@ -78,24 +77,12 @@ function deleteItem (item) {
  * @returns переключает статус сердечка и выдает новое количество лайков
  */
 function likeItem (evt, cardID) {
-    const method = evt.target.classList.contains('card__like-button_is-active') ? "DELETE" : "PUT";
-    return request(studentConfig, `/cards/likes/${cardID}`, method) //удаление / постановка лайка
+    const liked = evt.target.classList.contains('card__like-button_is-active');
+    return projectAPI.toggleLike(cardID, liked) //удаление / постановка лайка
       .then((res) => {
         evt.target.classList.toggle('card__like-button_is-active');
         return res.likes.length;
       })
 }
-
-/**
- * функци проверяет, существует ли карточка на сервере, 
- * используется для проверки во время постановки лайка, 
- * так как в момент чужого лайка владелец карточки мог ее удалить
- * @param {*} cardId 
- */
-/*
-function deleteCardIfOwnerDelete(cardId) {
-  return get(studentConfig, `/cards/${cardId}`) //проверка карточки на сервере
-    .then((res) => true);
-}*/
 
 export {createCard, deleteItem, likeItem};

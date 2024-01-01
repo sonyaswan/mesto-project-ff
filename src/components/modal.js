@@ -1,21 +1,8 @@
-import {cardTemplate, 
-  placesList, 
-  profileEditButtonOpen, 
-  profileEditPopup, 
-  newCardButtonOpen,
-  newCardPopup,
+import {
   imgPopup,
-  deleteCardPopup,
-  deleteCardButton,
-  profileTitle,
-  profileDescription,
-  profileImage,
-  formEditProfile,
-  nameInput,
-  jobInput,
-  formNewPlace,
-  placeNameInput,
-  placeUrlInput} from '../components/dom.js'; 
+  bigImgPopupImg,
+  bigImgPopupText,
+} from '../components/dom.js'; 
 
 
 /**
@@ -23,11 +10,8 @@ import {cardTemplate,
  * @param {HTMLElement} popup DOM попапа
  */
 function openModal(popup) {
-  popup.classList.add('popup_is-animated');
-  setTimeout(() => {
-    popup.classList.add('popup_is-opened')
-  }, 0);
-  document.addEventListener('keydown', closeModalEvt);
+  popup.classList.add('popup_is-opened');
+  document.addEventListener('keydown', (evt) => closeModalESC(evt, popup));
 }
 
 /**
@@ -36,30 +20,19 @@ function openModal(popup) {
  */
 function closeModal(popup) { // закрытие модального окна
   popup.classList.remove('popup_is-opened');
-  setTimeout(() => {
-    popup.classList.remove('popup_is-animated')
-  }, 600);
-  document.removeEventListener('keydown', closeModalEvt);
+  document.removeEventListener('keydown', (evt) => closeModalESC(evt, popup));
 }
 
 /**
- * закрытие модального окна по событию
+ * закрытие модального окна по событию нажатием на Esc
  * @param {Event} evtClose событие
+ * @param {HTMLElement} popup DOM попапа, который нужно закрыть
  */
-function closeModalEvt(evtClose) { // событие закрытия
-  
-  if ((evtClose.type === 'click' &&
-        evtClose.target.classList.contains('popup__close')) ||          // кликом по крестику
-    (evtClose.type === 'mousedown' && 
-        evtClose.target.classList.contains('popup_is-opened')) ||       // ПКМ на оверлей
-    (evtClose.key === "Escape") ||                                      // нажатием на Esc
-    (evtClose.type === 'submit' &&
-        evtClose.target.classList.contains('popup__form')))             // кликом по submit
-    {
-      closeModal(document.querySelector('.popup_is-opened')); 
+function closeModalESC(evtClose, popup) { // событие закрытия
+    if (evtClose.key === "Escape") {
+      closeModal(popup);
+    }
   }
-}
-
 
 /**
  * функция Открытие модального окна с большой картинкой
@@ -70,17 +43,14 @@ function openImgPopup(popupSource) {
     const evtCard = popupSource.target.closest('.card');
     const evtCardImg = popupSource.target;
     const evtCardText = evtCard.querySelector('.card__title');
-    const bigImgPopup = imgPopup;
-    const bigImgPopupImg = bigImgPopup.querySelector('.popup__image');
-    const bigImgPopupText = bigImgPopup.querySelector('.popup__caption');
 
     bigImgPopupImg.src = evtCardImg.src;
     bigImgPopupImg.alt = evtCardImg.alt;
     bigImgPopupText.textContent = evtCardText.textContent;
 
-    openModal(bigImgPopup);
+    openModal(imgPopup);
   }
 }
 
-export {openModal, closeModalEvt, openImgPopup};
+export {openModal, closeModal, openImgPopup};
 

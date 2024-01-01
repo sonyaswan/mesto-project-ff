@@ -39,11 +39,11 @@
       </p>
     </footer>
 
-    <div class="popup popup_type_edit">
+    <div class="popup popup_is-animated popup_type_edit">
       <div class="popup__content">
         <button type="button" class="popup__close"></button>
         <h3 class="popup__title">Редактировать профиль</h3>
-        <form class="popup__form" name="edit-profile">
+        <form class="popup__form" name="edit-profile" novalidate>
           <label class="popup__input-label">
             <input type="text" 
                     name="name" 
@@ -71,11 +71,11 @@
       </div>
     </div>
 
-    <div class="popup popup_type_new-card">
+    <div class="popup popup_is-animated popup_type_new-card">
       <div class="popup__content">
         <button type="button" class="popup__close"></button>
         <h3 class="popup__title">Новое место</h3>
-        <form class="popup__form" name="new-place">
+        <form class="popup__form" name="new-place" novalidate>
           <label class="popup__input-label">
             <input type="text" 
                     name="place-name" 
@@ -103,7 +103,7 @@
       </div>
     </div>
 
-    <div class="popup popup_type_image">
+    <div class="popup popup_is-animated popup_type_image">
       <div class="popup__content popup__content_content_image">
         <button type="button" class="popup__close"></button>
         <img src="" alt="" class="popup__image">
@@ -111,7 +111,7 @@
       </div>
     </div>
 
-    <div class="popup popup_type_delete-card">
+    <div class="popup popup_is-animated popup_type_delete-card">
       <div class="popup__content">
         <form class="popup__form" name="delete-card">
           <button type="button" class="popup__close"></button>
@@ -121,15 +121,15 @@
       </div>
     </div>
 
-    <div class="popup popup_type_edit-avatar">
+    <div class="popup popup_is-animated popup_type_edit-avatar">
       <div class="popup__content">
         <button type="button" class="popup__close"></button>
         <h3 class="popup__title">Обновить аватар</h3>
-        <form class="popup__form" name="new-avatar">
+        <form class="popup__form" name="new-avatar" novalidate>
           <label class="popup__input-label">
             <input type="url" 
                     name="link" 
-                    class="popup__input popup__input_type_url" 
+                    class="popup__input popup__input_type_url popup__input_type_url-img" 
                     placeholder="Ссылка на картинку" 
                     required
                     pattern="https?:\/\/\S+"
