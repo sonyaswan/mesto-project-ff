@@ -7,6 +7,7 @@ const validationConfig = {
   errorElementName: {type: 'name',
                     suffix: '-error'},
   errorClass: 'popup__error_visible',
+  inputImgClass: 'popup__input_type_url-img'
 }
 
 /**
@@ -62,13 +63,13 @@ const hasInvalidInput = (inputList) => {
 
 /**
  * Переключатель статуса кнопки отправки формы при проверке воодимых данных
- * @param {HTMLInputElement} inputList список DOM-элементов полей ввода для вроерки валидности
+ * @param {HTMLInputElement} inputListInvalidCheck негативный результат проверки списока DOM-элементов полей на валидность 
  * @param {HTMLButtonElement} buttonElement DOM-элемент кнопки отправки формы
  * @param {string} buttonClassInactive класс кнопки отправки формы, содержит стили для неактивной кнопки
  */
 
-const toggleButtonState = (inputList, buttonElement, buttonClassInactive) => {
-  if (hasInvalidInput(inputList)) {
+const toggleButtonStateByCheck = (inputListInvalidCheck, buttonElement, buttonClassInactive) => {
+  if (inputListInvalidCheck) {
     buttonElement.classList.add(buttonClassInactive);
     buttonElement.disabled = true;
   }
@@ -76,6 +77,17 @@ const toggleButtonState = (inputList, buttonElement, buttonClassInactive) => {
     buttonElement.classList.remove(buttonClassInactive);
     buttonElement.disabled = false;
   }
+}
+
+/**
+ * Переключатель статуса кнопки отправки формы при проверке воодимых данных
+ * @param {HTMLInputElement} inputList список DOM-элементов полей для проверки на валидность
+ * @param {HTMLButtonElement} buttonElement DOM-элемент кнопки отправки формы
+ * @param {string} buttonClassInactive класс кнопки отправки формы, содержит стили для неактивной кнопки
+ */
+
+const toggleButtonState = (inputList, buttonElement, buttonClassInactive) => {
+  toggleButtonStateByCheck(hasInvalidInput(inputList), buttonElement, buttonClassInactive);
 }
 
 /**
@@ -91,7 +103,7 @@ const toggleButtonState = (inputList, buttonElement, buttonClassInactive) => {
 
 const setCheckFormEventListeners = (formElement, inputSelectorClass, 
                                     submitButtonSelectorClass, buttonClassInactive, 
-                                    inputErrorClassActive, errorElementName, errorClassActive) => {
+                                    inputErrorClassActive, errorElementName, errorClassActive, imgUrlClass) => {
   const inputList = Array.from(formElement.querySelectorAll(inputSelectorClass));
   const buttonElement = formElement.querySelector(submitButtonSelectorClass);
   
@@ -99,8 +111,34 @@ const setCheckFormEventListeners = (formElement, inputSelectorClass,
   inputList.forEach((inputElement) => {
     const errorElement = formElement.querySelector(`.${inputElement[errorElementName.type]}${errorElementName.suffix}`);
     inputElement.addEventListener('input', function () {
-      checkInputValidity(inputElement, errorElement, inputErrorClassActive, errorClassActive);
-      toggleButtonState(inputList, buttonElement, buttonClassInactive);
+      const validityValid = inputElement.validity.valid;
+      const imgURL = inputElement.classList.contains(imgUrlClass);
+      
+      if (validityValid && imgURL) {
+        const errorMessage = 'Ссылка не ведет на изображение или его невозможно добавить';
+        toggleInputError(inputElement, errorElement, inputErrorClassActive, errorClassActive, 'Проверка изображения', false);
+        toggleButtonStateByCheck(true, buttonElement, buttonClassInactive);
+
+        fetch(inputElement.value, {
+          method: 'HEAD',
+          'Content-Type': 'image'
+        })
+        .then((res) => {
+          if (res.ok) {
+            console.log(res);
+            toggleInputError(inputElement, errorElement, inputErrorClassActive, errorClassActive, '', true);
+            toggleButtonStateByCheck(false, buttonElement, buttonClassInactive);
+          }
+        })
+        .catch((err) => {
+          console.log(`Error: ${err}`);
+          toggleInputError(inputElement, errorElement, inputErrorClassActive, errorClassActive, errorMessage, false);
+        })   
+      }
+      else {
+        checkInputValidity(inputElement, errorElement, inputErrorClassActive, errorClassActive);
+        toggleButtonState(inputList, buttonElement, buttonClassInactive);
+      }
     });
   });
 };
@@ -133,7 +171,8 @@ const enableValidation = (validationData) => {
       validationData.inactiveButtonClass, 
       validationData.inputErrorClass,
       validationData.errorElementName, 
-      validationData.errorClass);
+      validationData.errorClass,
+      validationData.inputImgClass);
   });
 };
 

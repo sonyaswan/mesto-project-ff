@@ -223,13 +223,13 @@ Promise.all([projectAPI.userInfo, projectAPI.cardsInfo])
 //----------------------------------------------------------------------------
 //  добавление слушателей на кнопки и попапы
 
-profileEditButtonOpen.addEventListener('click', openProfileEditPopup); //открытие попапа редактирования профиля по кнопке
+profileEditButtonOpen.addEventListener('click', openProfileEditPopup); 
 
-avatarEditButtonOpen.addEventListener('click', openAvatarEditPopup); //открытие попапа редактирования профиля по кнопке
+avatarEditButtonOpen.addEventListener('click', openAvatarEditPopup); 
 
-newCardButtonOpen.addEventListener('click', openNewCardPopup);//открытие попапа добавления новой карточки по кнопке
+newCardButtonOpen.addEventListener('click', openNewCardPopup);
 
-placesList.addEventListener('click', openImgPopup);//открытие попапа с просмотром картинки по клику на список карточек
+placesList.addEventListener('click', openImgPopup);
 
 /*слушатели закрытия попапов
 разнесено на два вида слушателей: 
