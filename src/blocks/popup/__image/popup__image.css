@@ -1,7 +1,12 @@
 .popup__image {
   display: block;
   max-width: 100%;
-  height: calc(540 / 720 * 100dvh);
+  max-height: calc(540 / 720 * 100dvh);
   object-fit: cover;
-  background-color: #C4C4C4;
+  background-color: #c4c4c4;
+}
+
+.popup__image_error-loading {
+  min-width: 200px;
+  height: 200px;
 }

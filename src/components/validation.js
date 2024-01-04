@@ -1,7 +1,7 @@
 const validationConfig = {
-  formSelector: 'popup__form',
-  inputSelector: 'popup__input',
-  submitButtonSelector: 'popup__button',
+  formSelector: '.popup__form',
+  inputSelector: '.popup__input',
+  submitButtonSelector: '.popup__button',
   inactiveButtonClass: 'popup__button_disabled',
   inputErrorClass: 'popup__input_type_error',
   errorElementName: {type: 'name',
@@ -19,8 +19,8 @@ const validationConfig = {
  * @param {string} errorMessage текст ошибки
  */
 
-const toggleInputError = (inputElement, errorElement, inputErrorClassActive, errorClassActive, errorMessage, validityValid) => {
-  if (validityValid) {
+const toggleInputError = (inputElement, errorElement, inputErrorClassActive, errorClassActive, errorMessage, validity) => {
+  if (validity) {
     inputElement.classList.remove(inputErrorClassActive);
     errorElement.classList.remove(errorClassActive);
   } else {
@@ -45,7 +45,7 @@ const checkInputValidity = (inputElement, errorElement, inputErrorClassActive, e
   inputElement.setCustomValidity('');
   }
   const validityValid = inputElement.validity.valid;
-  const errorMessage = !validityValid ? inputElement.validationMessage : ''
+  const errorMessage = !validityValid ? inputElement.validationMessage : '';
   toggleInputError(inputElement, errorElement, inputErrorClassActive, errorClassActive, errorMessage, validityValid);
 };
 
@@ -93,119 +93,117 @@ const toggleButtonState = (inputList, buttonElement, buttonClassInactive) => {
 /**
  * Установка слушателей на поля ввода для проверки данных для всей формы
  * @param {HTMLFormElement} formElement DOM-элемент формы, в которой проводится проверка
- * @param {string} inputSelectorClass класс, по которому будут отбираться DOM-элементы полей ввода внутри формы
- * @param {string} submitButtonSelectorClass класс, по которому будет выибираться DOM-элемент кнопка отправки формы
- * @param {string} buttonClassInactive класс кнопки отправки формы, содержит стили для неактивной кнопки
- * @param {string} inputErrorClassActive класс элемента ввода, содержит стили для отображения ошибки
- * @param {string} errorElementName объект {type, suffix}, содержит суффикс и тип сопоставления (id или name) для составления класса элемента с текстом ошибки, который соответсвует полю ввода
- * @param {string} errorClassActive класс элемента для вывода ошибки, содержит стили для отображения ошибки
+ * @param {object} config объект с настройками. все настройки передаются при вызове
+ * @param {string} config.formSelector - класс, по которому будет искаться DOM-элементы всех форм
+ * @param {string} config.inputSelector - класс, по которому будет искаться DOM-элементы ввода информации в форме
+ * @param {string} config.submitButtonSelector - класс, по которому будет выибираться DOM-элемент кнопка отправки формы
+ * @param {string} config.inactiveButtonClass - класс кнопки отправки формы, содержит стили для неактивной кнопки
+ * @param {string} config.inputErrorClass - класс элемента ввода, содержит стили для отображения ошибки
+ * @param {object} config.errorElementName - объект содержит суффикс и тип сопоставления для составления класса элемента с текстом ошибки, который соответсвует полю ввода
+ * @param {string} config.errorElementName.type - параметр, по которму будет сопоставляться поле ввода и элемент с ошибкой (id или name)
+ * @param {string} config.errorElementName.name - суффик для составления названия класса
+ * @param {string} config.errorClass - класс элемента для вывода ошибки, содержит стили для отображения ошибки
  */
 
-const setCheckFormEventListeners = (formElement, inputSelectorClass, 
-                                    submitButtonSelectorClass, buttonClassInactive, 
-                                    inputErrorClassActive, errorElementName, errorClassActive, imgUrlClass) => {
-  const inputList = Array.from(formElement.querySelectorAll(inputSelectorClass));
-  const buttonElement = formElement.querySelector(submitButtonSelectorClass);
-  
-  toggleButtonState(inputList, buttonElement, buttonClassInactive);
+const setCheckFormEventListeners = (formElement, config) => {
+  const inputList = Array.from(formElement.querySelectorAll(config.inputSelector));
+  const buttonElement = formElement.querySelector(config.submitButtonSelector);
+
+  toggleButtonState(inputList, buttonElement, config.inactiveButtonClass);
+
   inputList.forEach((inputElement) => {
-    const errorElement = formElement.querySelector(`.${inputElement[errorElementName.type]}${errorElementName.suffix}`);
+    const errorElement = formElement.querySelector(`.${inputElement[config.errorElementName.type]}${config.errorElementName.suffix}`);
     inputElement.addEventListener('input', function () {
-      const validityValid = inputElement.validity.valid;
-      const imgURL = inputElement.classList.contains(imgUrlClass);
-      
+      /* базовая валидация проекта */
+      checkInputValidity(inputElement, errorElement, config.inputErrorClass, config.errorClass);
+      toggleButtonState(inputList, buttonElement, config.inactiveButtonClass);
+
+      /* дополнительное задание проекта:
+      Опционально, если хотите потренироваться, можете проверить, что это именно URL на изображение, 
+      и он действительный. Для этого вам потребуется сделать запрос с методом HEAD по этому адресу 
+      и проверить статус ответа и mime-тип в заголовках. */
+      /*const validityValid = inputElement.validity.valid;
+      const imgURL = inputElement.classList.contains(config.inputImgClass);
       if (validityValid && imgURL) {
         const errorMessage = 'Ссылка не ведет на изображение или его невозможно добавить';
-        toggleInputError(inputElement, errorElement, inputErrorClassActive, errorClassActive, 'Проверка изображения', false);
-        toggleButtonStateByCheck(true, buttonElement, buttonClassInactive);
+        toggleInputError(inputElement, errorElement, config.inputErrorClass, config.errorClass, 'Проверка изображения', false);
+        toggleButtonStateByCheck(true, buttonElement, config.inactiveButtonClass);
 
         fetch(inputElement.value, {
-          method: 'HEAD',
-          'Content-Type': 'image'
+          method: 'HEAD'
         })
         .then((res) => {
-          if (res.ok) {
-            console.log(res);
-            toggleInputError(inputElement, errorElement, inputErrorClassActive, errorClassActive, '', true);
-            toggleButtonStateByCheck(false, buttonElement, buttonClassInactive);
+          const imgOk = res.headers.get('Content-Type').substring(0, 5) === 'image';
+          if (res.ok && imgOk) {
+            toggleInputError(inputElement, errorElement, config.inputErrorClass, config.errorClass, '', true);
+            toggleButtonStateByCheck(false, buttonElement, config.inactiveButtonClass);
+          }
+          else {
+            toggleInputError(inputElement, errorElement, config.inputErrorClass, config.errorClass, errorMessage, false);
+            toggleButtonStateByCheck(true, buttonElement, config.inactiveButtonClass);
           }
         })
         .catch((err) => {
           console.log(`Error: ${err}`);
-          toggleInputError(inputElement, errorElement, inputErrorClassActive, errorClassActive, errorMessage, false);
+          toggleInputError(inputElement, errorElement, config.inputErrorClass, config.errorClass, errorMessage, false);
+          toggleButtonStateByCheck(true, buttonElement, config.inactiveButtonClass);
         })   
       }
       else {
-        checkInputValidity(inputElement, errorElement, inputErrorClassActive, errorClassActive);
-        toggleButtonState(inputList, buttonElement, buttonClassInactive);
-      }
+        checkInputValidity(inputElement, errorElement, config.inputErrorClass, config.errorClass);
+        toggleButtonState(inputList, buttonElement, config.inactiveButtonClass);
+      }*/
     });
   });
 };
 
 /**
  * включение валидации вызовом enableValidation
- * @param {object} validationData объект с настройками. все настройки передаются при вызове
- * @param {string} validationData.formSelector - класс, по которому будет искаться DOM-элементы всех форм
- * @param {string} validationData.inputSelector - класс, по которому будет искаться DOM-элементы ввода информации в форме
- * @param {string} validationData.submitButtonSelector - класс, по которому будет выибираться DOM-элемент кнопка отправки формы
- * @param {string} validationData.inactiveButtonClass - класс кнопки отправки формы, содержит стили для неактивной кнопки
- * @param {string} validationData.inputErrorClass - класс элемента ввода, содержит стили для отображения ошибки
- * @param {object} validationData.errorElementName - объект содержит суффикс и тип сопоставления для составления класса элемента с текстом ошибки, который соответсвует полю ввода
- * @param {string} validationData.errorElementName.type - параметр, по которму будет сопоставляться поле ввода и элемент с ошибкой (id или name)
- * @param {string} validationData.errorElementName.name - суффик для составления названия класса
- * @param {string} validationData.errorClass - класс элемента для вывода ошибки, содержит стили для отображения ошибки
+ * @param {object} config объект с настройками. все настройки передаются при вызове
+ * @param {string} config.formSelector - класс, по которому будет искаться DOM-элементы всех форм
  */
-
-const enableValidation = (validationData) => {
-  const formList = Array.from(document.querySelectorAll(`.${validationData.formSelector}`));
+const enableValidation = (config) => {
+  const formList = Array.from(document.querySelectorAll(config.formSelector));
   
   formList.forEach((formElement) => {
     formElement.addEventListener('submit', function (evt) {
       evt.preventDefault();
     });
 
-    setCheckFormEventListeners(formElement, 
-      `.${validationData.inputSelector}`, 
-      `.${validationData.submitButtonSelector}`, 
-      validationData.inactiveButtonClass, 
-      validationData.inputErrorClass,
-      validationData.errorElementName, 
-      validationData.errorClass,
-      validationData.inputImgClass);
+    setCheckFormEventListeners(formElement, config);
   });
 };
 
 /**
  * Очистка отображения ошибок при открытии форм
  * @param {HTMLFormElement} formElement DOM-элемент формы, в которой проводится проверка
- * @param {object} validationData объект с настройками. все настройки передаются при вызове
- * @param {string} validationData.inputSelector - класс, по которому будет искаться DOM-элементы ввода информации в форме
- * @param {string} validationData.inputErrorClass - класс элемента ввода, содержит стили для отображения ошибки
- * @param {object} validationData.errorElementName - объект содержит суффикс и тип сопоставления для составления класса элемента с текстом ошибки, который соответсвует полю ввода
- * @param {string} validationData.errorElementName.type - параметр, по которму будет сопоставляться поле ввода и элемент с ошибкой (id или name)
- * @param {string} validationData.errorElementName.name - суффик для составления названия класса
- * @param {string} validationData.errorClass - класс элемента для вывода ошибки, содержит стили для отображения ошибки
- * @param {string} validationData.submitButtonSelector - класс, по которому будет выибираться DOM-элемент кнопка отправки формы
- * @param {string} validationData.inactiveButtonClass - класс кнопки отправки формы, содержит стили для неактивной кнопки
+ * @param {object} config объект с настройками. все настройки передаются при вызове
+ * @param {string} config.inputSelector - класс, по которому будет искаться DOM-элементы ввода информации в форме
+ * @param {string} config.inputErrorClass - класс элемента ввода, содержит стили для отображения ошибки
+ * @param {object} config.errorElementName - объект содержит суффикс и тип сопоставления для составления класса элемента с текстом ошибки, который соответсвует полю ввода
+ * @param {string} config.errorElementName.type - параметр, по которму будет сопоставляться поле ввода и элемент с ошибкой (id или name)
+ * @param {string} config.errorElementName.name - суффик для составления названия класса
+ * @param {string} config.errorClass - класс элемента для вывода ошибки, содержит стили для отображения ошибки
+ * @param {string} config.submitButtonSelector - класс, по которому будет выибираться DOM-элемент кнопка отправки формы
+ * @param {string} config.inactiveButtonClass - класс кнопки отправки формы, содержит стили для неактивной кнопки
  */
 
-const clearValidation = (formElement, validationData) => {
-  const inputList = Array.from(formElement.querySelectorAll(`.${validationData.inputSelector}`));
-  const buttonElement = formElement.querySelector(`.${validationData.submitButtonSelector}`);
+const clearValidation = (formElement, config) => {
+  const inputList = Array.from(formElement.querySelectorAll(config.inputSelector));
+  const buttonElement = formElement.querySelector(config.submitButtonSelector);
   
   inputList.forEach((inputElement) => {
-    const errorElement = formElement.querySelector(`.${inputElement[validationData.errorElementName.type]}${validationData.errorElementName.suffix}`)
+    const errorElement = formElement.querySelector(`.${inputElement[config.errorElementName.type]}${config.errorElementName.suffix}`);
 
     toggleInputError(inputElement, 
       errorElement,
-      validationData.inputErrorClass,
-      validationData.errorClass,
+      config.inputErrorClass,
+      config.errorClass,
       '',
-      true)
+      true);
   });
 
-  toggleButtonState(inputList, buttonElement, validationData.inactiveButtonClass);
+  toggleButtonState(inputList, buttonElement, config.inactiveButtonClass);
 };
 
 export {validationConfig, enableValidation, clearValidation};

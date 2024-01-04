@@ -14,6 +14,8 @@ const newCardButtonOpen = document.querySelector('.profile__add-button');
 //кнопка изменения аватара профиля
 const avatarEditButtonOpen = document.querySelector('.profile__image-edit-buttom');
 
+//список всех попапов
+const popups = document.querySelectorAll('.popup');
 //попап с формой изменения данных профиля
 const profileEditPopup = document.querySelector('.popup_type_edit');
 //попап с формой добавления новой карточки
@@ -49,7 +51,7 @@ const formNewPlaceSubmit = formNewPlace.querySelector('.popup__button');
 const formDeleteCard = сardDeletePopup.querySelector('.popup__form');
 const formDeleteCardSubmit = formDeleteCard.querySelector('.popup__button');
 
-// Находим форму добавления карточки в DOM и ее поля
+// Находим форму изменения аватара в DOM и ее поля
 const formNewAvatar = document.forms['new-avatar']; 
 const avatarUrlInput = formNewAvatar.elements.link;
 const formNewAvatarSubmit = formNewAvatar.querySelector('.popup__button');
@@ -60,6 +62,7 @@ export {cardTemplate,
         profileEditButtonOpen,
         newCardButtonOpen,
         avatarEditButtonOpen,
+        popups,
         profileEditPopup,
         newCardPopup,
         imgPopup,

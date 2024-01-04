@@ -70,12 +70,12 @@ const requestData = (config, uri, method, data) => {
 
 const makeAPI = (config) => ({
   updateProfile: (newInfo) => requestData(config, config.uri.profile, 'PATCH', newInfo),
-  updateAvatar: (newURL) => requestData(config, config.uri.avatar, 'PATCH', newURL),
-  deleteCard: (cardID) => requestData(config, `${config.uri.cards}/${cardID}`, 'DELETE'),
+  updateAvatar: (newUrl) => requestData(config, config.uri.avatar, 'PATCH', newUrl),
+  deleteCard: (cardId) => requestData(config, `${config.uri.cards}/${cardId}`, 'DELETE'),
   postCard: (newPlace) => requestData(config, config.uri.cards, 'POST', newPlace),
-  toggleLike: (cardID, ifLiked) => {
-    const method = ifLiked ? "DELETE" : "PUT";
-    return requestData(config, `${config.uri.likes}/${cardID}`, method)
+  toggleLike: (cardId, isLiked) => {
+    const method = isLiked ? "DELETE" : "PUT";
+    return requestData(config, `${config.uri.likes}/${cardId}`, method)
   },
   userInfo: getData(config, config.uri.profile),
   cardsInfo: getData(config, config.uri.cards)

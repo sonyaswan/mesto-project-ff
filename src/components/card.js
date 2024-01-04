@@ -13,7 +13,7 @@ import {
  * @param {string} cardContent.link ссылка на изображение
  * @param {object} cardContent.owner владелец карточки
  * @param {Array} cardContent.likes массив с информацией о том, кто лайкнул
- * @param {boolean} cardContent.userID залогиненный пользователь
+ * @param {boolean} cardContent.userId залогиненный пользователь
  * @param {string} cardContent._id id карточки 
  * @param {Function} deleteAny функция удаления из разметки
  * @param {Function} likeCard функция лайка карточки
@@ -29,8 +29,8 @@ function createCard (cardContent, deleteAny, likeCard, openPopupDelete) {
   const likeButton = newCard.querySelector('.card__like-button');
   const buttonDeleteCard = newCard.querySelector('.card__delete-button');
 
-  const isMyCard = cardContent.owner._id === cardContent.userID;
-  const hasMyLike = cardContent.likes.some((item) => item._id === cardContent.userID);
+  const isMyCard = cardContent.owner._id === cardContent.userId;
+  const hasMyLike = cardContent.likes.some((item) => item._id === cardContent.userId);
 
   cardImg.src = cardContent.link;
   cardImg.alt = "Фотография локации: " + cardContent.name;
@@ -73,12 +73,12 @@ function deleteItem (item) {
 /**
  * Постановка и снятие лайка
  * @param {Event} evt событие клика по кнопке лайка
- * @param {string} cardID id карточки, которую лайкают
+ * @param {string} cardId id карточки, которую лайкают
  * @returns переключает статус сердечка и выдает новое количество лайков
  */
-function likeItem (evt, cardID) {
+function likeItem (evt, cardId) {
     const liked = evt.target.classList.contains('card__like-button_is-active');
-    return projectAPI.toggleLike(cardID, liked) //удаление / постановка лайка
+    return projectAPI.toggleLike(cardId, liked) //удаление / постановка лайка
       .then((res) => {
         evt.target.classList.toggle('card__like-button_is-active');
         return res.likes.length;

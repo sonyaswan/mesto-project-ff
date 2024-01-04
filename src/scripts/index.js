@@ -15,9 +15,9 @@ import {
   profileEditButtonOpen,
   newCardButtonOpen,
   avatarEditButtonOpen,
+  popups,
   profileEditPopup,
   newCardPopup,
-  imgPopup,
   сardDeletePopup,
   avatarEditPopup,
   profileTitle,
@@ -38,18 +38,18 @@ import {
   formNewAvatarSubmit
 } from '../components/dom.js'; 
 
-import {validationConfig, enableValidation, clearValidation} from '../components/validation.js';
+import {validationConfig, enableValidation, clearValidation, setError, toggleButtonStateByCheck} from '../components/validation.js';
 
 import {projectAPI} from '../components/api.js';
 
 //объект для временного хранения информации карточки, которую надо удалить
 const cardIdObj = {
   cardId: '',
-  cardDOM:  '',
+  cardDom:  '',
 };
 
 //залогиненный пользователь
-let userID;
+let userId;
 
 
 //----------------------------------------------------------------------------
@@ -72,12 +72,12 @@ function renderCard (cardContent, prepEnd) {
 
 /**
  * Функция открытия попапа удаления карточки, передается в слушатель кнопки "корзина" на каждой карточке
- * @param {string} cardID id карточки 
- * @param {string} cardDOM DOM карточки 
+ * @param {string} cardId id карточки 
+ * @param {string} cardDom DOM карточки 
  */
-function openсardDeletePopup (cardID, cardDOM) {
-  cardIdObj.cardId = cardID;
-  cardIdObj.cardDOM = cardDOM;
+function openсardDeletePopup (cardId, cardDom) {
+  cardIdObj.cardId = cardId;
+  cardIdObj.cardDom = cardDom;
   formDeleteCardSubmit.textContent = 'Да';
   openModal(сardDeletePopup);  
 }
@@ -129,7 +129,7 @@ function handleSubmitDelete (evt) {
   projectAPI.deleteCard(cardIdObj.cardId) //удаление карточки с сервера
   .then((res) => {
     formDeleteCardSubmit.textContent = 'Удаление...';
-    deleteItem(cardIdObj.cardDOM); //удаление карточки из разметки
+    deleteItem(cardIdObj.cardDom); //удаление карточки из разметки
     setTimeout(() => {
       closeModal(сardDeletePopup);
     }, 300);
@@ -149,9 +149,9 @@ function handleFormEditProfile(evt) {
   }
   projectAPI.updateProfile(newInf) //Редактирование профиля
     .then((res) => {
+      formEditProfileSubmit.textContent = 'Сохранение...';
       profileTitle.textContent = newInf.name;
       profileDescription.textContent = newInf.about;
-      formEditProfileSubmit.textContent = 'Сохранение...';
       setTimeout(() => {
         closeModal(profileEditPopup);
       }, 300);
@@ -170,15 +170,14 @@ function handleFormEditAvatar(evt) {
   }
   projectAPI.updateAvatar(newInf) //Редактирование аватара
     .then((res) => {
-      profileImage.src = res.avatar;
       formNewAvatarSubmit.textContent =  'Сохранение...';
+      profileImage.src = res.avatar;
       setTimeout(() => {
         closeModal(avatarEditPopup);
       }, 300);
     })
-    .catch((err) => console.log(err));
+    .catch((err) =>  console.log(err));
 }
-
 
 /**
  * Обработчик «отправки» формы добавления новой карточки
@@ -193,16 +192,15 @@ function handleFormNewPlace(evt) {
 
   projectAPI.postCard(newPlace) //добавление новой карточки на сервер
     .then((card) => {
-      card.userID = userID;
-      renderCard(card, true);
       formNewPlaceSubmit.textContent = 'Сохранение...';
+      card.userId = userId;
+      renderCard(card, true);
       setTimeout(() => {
         closeModal(newCardPopup);
       }, 300)   
     })
     .catch((err) => console.log(err));
 }
-
 
 //----------------------------------------------------------------------------
 //рендер страницы с данными из базы
@@ -211,14 +209,13 @@ Promise.all([projectAPI.userInfo, projectAPI.cardsInfo])
     profileTitle.textContent = USER.name;
     profileDescription.textContent = USER.about;
     profileImage.src = USER.avatar;
-    userID = USER['_id'];
+    userId = USER['_id'];
     CARDS.forEach((card) => {
-      card.userID = userID;
+      card.userId = userId;
       renderCard(card, false);
     });
   })
   .catch((err) => console.log(err));
-
 
 //----------------------------------------------------------------------------
 //  добавление слушателей на кнопки и попапы
@@ -232,32 +229,26 @@ newCardButtonOpen.addEventListener('click', openNewCardPopup);
 placesList.addEventListener('click', openImgPopup);
 
 /*слушатели закрытия попапов
-разнесено на два вида слушателей: 
-оверлей выделен отдельно mousedown для более приятного пользовательского опыта. 
-например если закрытие по оверлею будет по click и пользователь будет выделять 
+разнесено на два вида слушателей*/
+
+popups.forEach((popup) => {
+  /*оверлей выделен отдельно mousedown для более приятного пользовательского опыта. 
+например если пользователь будет выделять 
 мышкой текст в каком либо инпуте не очень аккуратно, и при этом движение мышки 
 закончилось где-то не внутри попапа, а на оверлее - то поп ап закроется, это 
 явно не то, что ожидаемо от интерфейса.*/
-
-[profileEditPopup,
-avatarEditPopup,
-newCardPopup,
-imgPopup,
-сardDeletePopup].forEach((popup) => {
-
-  popup.addEventListener('mousedown', (evtClose) => {                  // ПКМ на оверлей
+  popup.addEventListener('mousedown', (evtClose) => {                  // ПКМ на оверлей - оставно после ревью (серый коммент)
     if (evtClose.target.classList.contains('popup_is-opened')){
       closeModal(popup);
     }
   })
 
-  popup.addEventListener('click', (evtClose) => {                      // кликом по крестику
+  popup.addEventListener('mouseup', (evtClose) => {                      // по крестику
     if (evtClose.target.classList.contains('popup__close')){
       closeModal(popup);
     }
   })
 })
-
 
 //----------------------------------------------------------------------------
 // Прикрепляем обработчики к формам:
@@ -266,9 +257,6 @@ formNewAvatar.addEventListener('submit', handleFormEditAvatar);
 formNewPlace.addEventListener('submit', handleFormNewPlace); 
 formDeleteCard.addEventListener('submit', handleSubmitDelete); 
 
-
 //----------------------------------------------------------------------------
 //включение валидации форм
 enableValidation(validationConfig); 
-
-
